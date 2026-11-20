@@ -98,4 +98,4 @@ class SeriesScorer:
         _, z_ewma = self.ewma.update(x)
         self.n += 1
         ready = self.n > self.warmup
-        return {"forecast": f_ar, "z_ar": z_ar if ready else 0.0, "z_ewma": z_ewma if ready else 0.0, "ready": ready}
+        return {"forecast": f_ar if ready else None, "z_ar": z_ar if ready else 0.0, "z_ewma": z_ewma if ready else 0.0, "ready": ready}

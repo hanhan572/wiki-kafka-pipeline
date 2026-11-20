@@ -80,6 +80,17 @@ st.sidebar.markdown(
     "**Consumer groups**  \n`edits-to-postgres`  \n`edit-stats-processor`  \n`rate-anomaly-detector`  \n`derived-to-postgres`")
 
 
+def with_gaps(df: pd.DataFrame, col: str, max_gap_s: float = 30) -> pd.DataFrame:
+    """Insert an empty row into every hole of a time series so the chart breaks the line instead of joining across an outage."""
+    if len(df) < 2:
+        return df
+    gaps = df[col].diff().dt.total_seconds() > max_gap_s
+    if not gaps.any():
+        return df
+    fill = pd.DataFrame({col: (df[col].shift() + (df[col] - df[col].shift()) / 2)[gaps]})
+    return pd.concat([df, fill]).sort_values(col).reset_index(drop=True)
+
+
 def fmt_int(n) -> str:
     return f"{int(n):,}"
 
@@ -134,6 +145,7 @@ def live() -> None:
             st.subheader("Edits per minute (stream-processor output)")
             st.caption("tumbling 1-minute windows, computed by the `edit-stats-processor` consumer")
             if len(per_min) > 1:
+                per_min = with_gaps(per_min, "minute_start", 90)
                 long = per_min.melt("minute_start", var_name="editor", value_name="edits")
                 fig = px.area(long, x="minute_start", y="edits", color="editor", color_discrete_map={"human": HUMAN, "bot": BOT})
                 fig.update_layout(height=330, margin=dict(l=0, r=0, t=10, b=0), legend_title_text="", xaxis_title=None, yaxis_title="edits / min")
@@ -174,12 +186,13 @@ def live() -> None:
         rs = query(f"""SELECT bucket_time, observed, forecast, z_ar, is_anomaly FROM rate_scores
                        WHERE series = 'ALL' AND bucket_time > {since} ORDER BY bucket_time""")
         if len(rs) > 3:
+            rs = with_gaps(rs, "bucket_time")
             g1, g2 = st.columns([3, 2])
             with g1:
                 fig = go.Figure()
                 fig.add_scatter(x=rs.bucket_time, y=rs.observed, name="observed", mode="lines", line=dict(color=HUMAN, width=1.5))
                 fig.add_scatter(x=rs.bucket_time, y=rs.forecast, name="AR(3) forecast", mode="lines", line=dict(color=BOT, dash="dot", width=1.5))
-                an = rs[rs.is_anomaly]
+                an = rs[rs.is_anomaly == True]  # noqa: E712  (NaN rows inserted for gaps)
                 fig.add_scatter(x=an.bucket_time, y=an.observed, name="anomaly", mode="markers",
                                 marker=dict(color=ALERT, size=11, symbol="x"))
                 fig.update_layout(height=320, margin=dict(l=0, r=0, t=10, b=0), yaxis_title="edits / 10 s", legend=dict(orientation="h"))

@@ -64,7 +64,7 @@ class Detector:
                 out.append({
                     "series": series,
                     "bucket_time": datetime.fromtimestamp(b * BUCKET, tz=timezone.utc).isoformat(),
-                    "observed": x, "forecast": round(r["forecast"], 3),
+                    "observed": x, "forecast": None if r["forecast"] is None else round(r["forecast"], 3),   # no forecast while warming up
                     "z_ar": round(r["z_ar"], 3), "z_ewma": round(r["z_ewma"], 3),
                     "is_anomaly": bool(r["ready"] and r["z_ar"] >= Z_THRESHOLD and x >= MIN_COUNT),
                 })

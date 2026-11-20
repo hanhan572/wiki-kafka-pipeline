@@ -1,11 +1,11 @@
 # 📡 Wikipedia Live Edits — a real-time Kafka pipeline
 
-> **Live dashboard:** *(public link is added here after deployment — see [How the public dashboard is deployed](#how-the-public-dashboard-is-deployed))*
+> **Live dashboard:** **https://wiki-kafka-pipeline-wsvschywwaosnq3fc9dvef.streamlit.app/**
 > *(auto-refreshes every 5 s — nothing to install, just open the link)*
 
 ![dashboard](images/dashboard_full.png)
 
-*Screenshot of the running dashboard right after a demo burst (red ✕ = detected anomalies).*
+*Screenshot of the running dashboard right after a demo burst (red ✕ = detected anomalies). The public deployment looks the same: [`images/public_dashboard.png`](images/public_dashboard.png).*
 
 Every few seconds, people and bots edit Wikipedia somewhere in the world. This project turns that firehose into a
 production-style streaming system: the live edit feed goes into **Apache Kafka**, independent **consumers** store it in
