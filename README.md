@@ -219,16 +219,31 @@ All settings are environment variables ([`.env.example`](.env.example) lists the
 
 ## How the public dashboard is deployed
 
-The public dashboard is a free **Hugging Face Space** (Docker) running the *whole* pipeline in one container
-([`deploy/huggingface/`](deploy/huggingface)): Kafka in KRaft mode, the producer, all consumers/processors and the Streamlit app, writing to a free **Supabase** Postgres.
-Because Kafka and the processors live in the Space, the link keeps showing live data with nothing running on my laptop.
+The public dashboard runs on **Streamlit Community Cloud** (free, GitHub login, no credit card) with a free **Supabase** Postgres.
+[`streamlit_app.py`](streamlit_app.py) is the entry point: on the first visit it starts the *whole* pipeline as background processes
+inside the app — Kafka in KRaft mode (downloaded on first start; Java comes from [`packages.txt`](packages.txt)), the producer and all
+consumers/processors ([`deploy/cloud/run_pipeline.sh`](deploy/cloud/run_pipeline.sh)) — and then renders the dashboard.
+The whole pipeline needs about 200 MB of RAM. Because it lives in the app, the public link shows live data with nothing running on my laptop:
 
-1. Supabase → new project → *Connect* → copy the **Session pooler** connection string (`postgresql://postgres.<ref>:<password>@aws-0-<region>.pooler.supabase.com:5432/postgres`).
-2. Hugging Face → *New Space* → SDK **Docker**, blank template.
-3. Space → *Settings* → *Variables and secrets* → new **secret** `DATABASE_URL` = the Supabase string (and optionally `WIKI_USER_AGENT`).
-4. `scripts/deploy_hf.sh <hf-username>/<space-name>` (asks for your HF username and a *write* access token) → the Space builds and starts.
+* A free Community Cloud app goes to sleep after a period without visitors; opening the link wakes it and the pipeline restarts
+  (live data is back within about a minute — the page says so while it boots). The history in Supabase is kept.
+* If the pipeline is not running, the dashboard says **“Pipeline offline”** and shows the most recent data it has (relative to the last event received)
+  instead of blank charts. If Kafka ever crashes, the next page load restarts everything.
 
-(A free Space goes to sleep after 48 h without visitors and wakes up when someone opens the link; the history in Supabase is kept.)
+To deploy your own copy:
+
+1. **Supabase** → new project → *Connect* → **Session pooler** connection string (`postgresql://postgres.<ref>:<password>@aws-1-<region>.pooler.supabase.com:5432/postgres`). The tables are created automatically.
+2. **Streamlit Community Cloud** ([share.streamlit.io](https://share.streamlit.io)) → *Create app* → repository `hanhan572/wiki-kafka-pipeline`, branch `main`, main file `streamlit_app.py`; *Advanced settings* → Python **3.12** and paste in **Secrets**:
+   ```toml
+   DATABASE_URL = "postgresql://postgres.<ref>:<password>@aws-1-<region>.pooler.supabase.com:5432/postgres?sslmode=require"
+   RUN_PIPELINE = "1"
+   WIKI_USER_AGENT = "wiki-kafka-pipeline/1.0 (student project; your contact or repo URL)"
+   ```
+   (`RUN_PIPELINE = "1"` switches the background pipeline on; leave it out to run only the dashboard against an existing database.)
+
+The secrets live only in Streamlit's settings — they are not in this repository.
+
+> I first tried a free Hugging Face Docker Space, but Docker Spaces on the free tier now require a PRO subscription — hence Streamlit Community Cloud.
 
 ## Repository layout
 
@@ -246,8 +261,10 @@ Because Kafka and the processors live in the Space, the link keeps showing live 
 │   ├── derived_sink.py         # derived topics → Postgres
 │   ├── kafka_utils.py, db.py, config.py, schema.sql
 ├── dashboard/app.py            # Part 5 – Streamlit
-├── deploy/huggingface/         # all-in-one image for the public Space
-├── scripts/                    # evaluate_anomaly.py, inject_burst.py, make_diagram.py, screenshot.py, deploy_hf.sh
+├── streamlit_app.py            # entry point of the public deployment (starts the pipeline, then the dashboard)
+├── packages.txt                # apt packages for Streamlit Cloud (Java for Kafka)
+├── deploy/cloud/               # run_pipeline.sh + Kafka config for the all-in-one cloud deployment
+├── scripts/                    # evaluate_anomaly.py, inject_burst.py, make_diagram.py, screenshot.py
 ├── tests/                      # pytest: windows, alert rules, producer flattening, AR model
 └── docs/, images/              # diagram, evaluation results, screenshots
 ```

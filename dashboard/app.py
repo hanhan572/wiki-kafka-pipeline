@@ -16,16 +16,24 @@ import streamlit as st
 REFRESH_SECONDS = 5
 HUMAN, BOT, ACCENT, ALERT = "#3b6ea8", "#d9822b", "#4f9d69", "#d64545"
 
-st.set_page_config(page_title="Wikipedia Live Edits", page_icon="📡", layout="wide")
+try:
+    st.set_page_config(page_title="Wikipedia Live Edits", page_icon="📡", layout="wide")
+except Exception:      # already set by streamlit_app.py (the cloud entry point)
+    pass
 
 
 def database_url() -> str:
+    """DATABASE_URL: environment first, then Streamlit secrets (only touched when a secrets file exists, otherwise
+    Streamlit renders a red error box), then the local docker-compose default."""
+    if os.environ.get("DATABASE_URL"):
+        return os.environ["DATABASE_URL"]
     try:
-        if "DATABASE_URL" in st.secrets:
-            return st.secrets["DATABASE_URL"]
+        if any(os.path.exists(p) for p in (os.path.expanduser("~/.streamlit/secrets.toml"), ".streamlit/secrets.toml", "/mount/src/.streamlit/secrets.toml")):
+            if "DATABASE_URL" in st.secrets:
+                return st.secrets["DATABASE_URL"]
     except Exception:
         pass
-    return os.environ.get("DATABASE_URL", "postgresql://wiki:wiki@localhost:5433/wiki")
+    return "postgresql://wiki:wiki@localhost:5433/wiki"
 
 
 @st.cache_resource
@@ -79,13 +87,24 @@ def fmt_int(n) -> str:
 @st.fragment(run_every=REFRESH_SECONDS)
 def live() -> None:
     try:
-        since = f"now() - make_interval(mins => {minutes})"
         latest = query("SELECT max(event_time) AS t, count(*) AS n FROM edits")
         if latest.empty or pd.isna(latest.t[0]):
-            st.warning("Connected to the database, but no events have arrived yet. Is the producer running?")
+            if os.environ.get("PIPELINE_MANAGED_BY_APP"):
+                st.info("⏳ The pipeline is starting up (Kafka boots inside this app on the first visit). The first events appear in about a minute — this page refreshes by itself.")
+            else:
+                st.warning("Connected to the database, but no events have arrived yet. Is the producer running?")
             return
         lag = (datetime.now(timezone.utc) - latest.t[0]).total_seconds()
-        rate = query("SELECT count(*) AS n FROM edits WHERE event_time > now() - interval '60 seconds'").n[0] / 60
+        offline = lag > 120
+        # While the pipeline is live every window is relative to now(); if it is offline, relative to the last event received,
+        # so the charts still show the most recent data instead of going blank.
+        ref = f"'{latest.t[0].isoformat()}'::timestamptz" if offline else "now()"
+        since = f"{ref} - make_interval(mins => {minutes})"
+        if offline:
+            age = f"{lag / 3600:.1f} h" if lag > 3600 else f"{lag / 60:.0f} min"
+            starting = " The pipeline is (re)starting in this app — live data should return within a minute or two." if os.environ.get("PIPELINE_MANAGED_BY_APP") else ""
+            st.warning(f"⚠️ Pipeline offline — showing the most recent data, received {latest.t[0]:%Y-%m-%d %H:%M} UTC ({age} ago).{starting}")
+        rate = query(f"SELECT count(*) AS n FROM edits WHERE event_time > {ref} - interval '60 seconds'").n[0] / 60
         totals = query("SELECT coalesce(sum(edits), 0) AS edits FROM edit_stats_minute").edits[0]
         win = query(f"""SELECT coalesce(sum(edits),0) AS edits, coalesce(sum(bot_edits),0) AS bots, coalesce(sum(human_edits),0) AS humans,
                                coalesce(sum(new_pages),0) AS new_pages, coalesce(sum(bytes_added),0) AS added,
@@ -96,20 +115,20 @@ def live() -> None:
 
         # ------------------------------------------------------------------ summary numbers
         c = st.columns(7)
-        c[0].metric("Edits / sec", f"{rate:.1f}")
+        c[0].metric("Edits / sec", f"{rate:.1f}" if not offline else "–")
         c[1].metric(f"Edits ({window_label.lower()})", fmt_int(win.edits))
         c[2].metric("Bot share", f"{100 * win.bots / max(win.edits, 1):.0f}%")
         c[3].metric("Active wikis", fmt_int(win.wikis))
         c[4].metric("Net bytes", f"{(win.added - win.removed) / 1e6:+.1f} MB")
         c[5].metric("Alerts · anomalies", f"{fmt_int(n_alerts)} · {fmt_int(n_anom)}")
-        c[6].metric("Data latency", f"{lag:.0f} s", delta="live" if lag < 60 else "stale", delta_color="normal" if lag < 60 else "inverse")
+        c[6].metric("Data latency", (f"{lag:.0f} s" if lag < 3600 else f"{lag / 3600:.1f} h"), delta="live" if lag < 60 else "offline" if offline else "lagging", delta_color="normal" if lag < 60 else "inverse")
         st.caption(f"{fmt_int(totals)} edits aggregated since the pipeline started · {fmt_int(latest.n[0])} raw events currently stored · "
                    f"refreshed {datetime.now(timezone.utc):%H:%M:%S} UTC")
 
         # ------------------------------------------------------------------ row 1: throughput + top wikis
         left, right = st.columns([3, 2])
         per_min = query(f"""SELECT minute_start, sum(human_edits) AS human, sum(bot_edits) AS bot
-                            FROM edit_stats_minute WHERE minute_start > {since} AND minute_start < date_trunc('minute', now())
+                            FROM edit_stats_minute WHERE minute_start > {since} AND minute_start < date_trunc('minute', {ref})
                             GROUP BY minute_start ORDER BY minute_start""")   # skip the still-filling current minute
         with left:
             st.subheader("Edits per minute (stream-processor output)")
