@@ -1,0 +1,941 @@
+{
+  "hours_of_data": 0.94,
+  "series": [
+    "ALL",
+    "enwiki",
+    "arwiki",
+    "frwiki",
+    "zhwiki",
+    "ttwiki"
+  ],
+  "operating_z": 4.0,
+  "min_count": 6,
+  "scenarios": {
+    "real": {
+      "busy": {
+        "static": {
+          "precision": 1.0,
+          "recall": 0.487,
+          "f1": 0.655,
+          "false_alarms_per_hour": 0.0,
+          "recall_by_spike_size": {
+            "0.5": 0.0,
+            "1.0": 0.1,
+            "2.0": 0.81,
+            "4.0": 1.0
+          },
+          "n_spikes": 80
+        },
+        "ewma": {
+          "precision": 1.0,
+          "recall": 0.625,
+          "f1": 0.769,
+          "false_alarms_per_hour": 0.0,
+          "recall_by_spike_size": {
+            "0.5": 0.053,
+            "1.0": 0.45,
+            "2.0": 0.952,
+            "4.0": 1.0
+          },
+          "n_spikes": 80
+        },
+        "ar-rls": {
+          "precision": 1.0,
+          "recall": 0.562,
+          "f1": 0.72,
+          "false_alarms_per_hour": 0.0,
+          "recall_by_spike_size": {
+            "0.5": 0.0,
+            "1.0": 0.3,
+            "2.0": 0.905,
+            "4.0": 1.0
+          },
+          "n_spikes": 80
+        }
+      },
+      "small": {
+        "static": {
+          "precision": 0.643,
+          "recall": 0.257,
+          "f1": 0.367,
+          "false_alarms_per_hour": 0.55,
+          "recall_by_spike_size": {
+            "0.5": 0.143,
+            "1.0": 0.059,
+            "2.0": 0.091,
+            "4.0": 0.568
+          },
+          "n_spikes": 105
+        },
+        "ewma": {
+          "precision": 0.75,
+          "recall": 0.4,
+          "f1": 0.522,
+          "false_alarms_per_hour": 0.51,
+          "recall_by_spike_size": {
+            "0.5": 0.143,
+            "1.0": 0.118,
+            "2.0": 0.182,
+            "4.0": 0.838
+          },
+          "n_spikes": 105
+        },
+        "ar-rls": {
+          "precision": 0.714,
+          "recall": 0.333,
+          "f1": 0.455,
+          "false_alarms_per_hour": 0.51,
+          "recall_by_spike_size": {
+            "0.5": 0.143,
+            "1.0": 0.059,
+            "2.0": 0.114,
+            "4.0": 0.757
+          },
+          "n_spikes": 105
+        }
+      }
+    },
+    "drift": {
+      "busy": {
+        "static": {
+          "precision": 0.241,
+          "recall": 0.797,
+          "f1": 0.371,
+          "false_alarms_per_hour": 14.56,
+          "recall_by_spike_size": {
+            "0.5": 0.444,
+            "1.0": 0.7,
+            "2.0": 1.0,
+            "4.0": 1.0
+          },
+          "n_spikes": 79
+        },
+        "ewma": {
+          "precision": 1.0,
+          "recall": 0.544,
+          "f1": 0.705,
+          "false_alarms_per_hour": 0.0,
+          "recall_by_spike_size": {
+            "0.5": 0.0,
+            "1.0": 0.25,
+            "2.0": 0.857,
+            "4.0": 1.0
+          },
+          "n_spikes": 79
+        },
+        "ar-rls": {
+          "precision": 1.0,
+          "recall": 0.506,
+          "f1": 0.672,
+          "false_alarms_per_hour": 0.0,
+          "recall_by_spike_size": {
+            "0.5": 0.0,
+            "1.0": 0.1,
+            "2.0": 0.905,
+            "4.0": 0.95
+          },
+          "n_spikes": 79
+        }
+      },
+      "small": {
+        "static": {
+          "precision": 0.594,
+          "recall": 0.288,
+          "f1": 0.388,
+          "false_alarms_per_hour": 0.96,
+          "recall_by_spike_size": {
+            "0.5": 0.056,
+            "1.0": 0.212,
+            "2.0": 0.159,
+            "4.0": 0.622
+          },
+          "n_spikes": 132
+        },
+        "ewma": {
+          "precision": 1.0,
+          "recall": 0.212,
+          "f1": 0.35,
+          "false_alarms_per_hour": 0.0,
+          "recall_by_spike_size": {
+            "0.5": 0.0,
+            "1.0": 0.061,
+            "2.0": 0.136,
+            "4.0": 0.541
+          },
+          "n_spikes": 132
+        },
+        "ar-rls": {
+          "precision": 1.0,
+          "recall": 0.205,
+          "f1": 0.34,
+          "false_alarms_per_hour": 0.0,
+          "recall_by_spike_size": {
+            "0.5": 0.0,
+            "1.0": 0.091,
+            "2.0": 0.114,
+            "4.0": 0.514
+          },
+          "n_spikes": 132
+        }
+      }
+    }
+  },
+  "threshold_sweep": {
+    "real": {
+      "busy": {
+        "static": [
+          {
+            "z": 2,
+            "precision": 0.817,
+            "recall": 0.725,
+            "false_alarms_per_hour": 0.96
+          },
+          {
+            "z": 2.5,
+            "precision": 1.0,
+            "recall": 0.575,
+            "false_alarms_per_hour": 0.0
+          },
+          {
+            "z": 3,
+            "precision": 1.0,
+            "recall": 0.575,
+            "false_alarms_per_hour": 0.0
+          },
+          {
+            "z": 3.5,
+            "precision": 1.0,
+            "recall": 0.525,
+            "false_alarms_per_hour": 0.0
+          },
+          {
+            "z": 4,
+            "precision": 1.0,
+            "recall": 0.487,
+            "false_alarms_per_hour": 0.0
+          },
+          {
+            "z": 4.5,
+            "precision": 1.0,
+            "recall": 0.425,
+            "false_alarms_per_hour": 0.0
+          },
+          {
+            "z": 5,
+            "precision": 1.0,
+            "recall": 0.35,
+            "false_alarms_per_hour": 0.0
+          },
+          {
+            "z": 6,
+            "precision": 1.0,
+            "recall": 0.287,
+            "false_alarms_per_hour": 0.0
+          },
+          {
+            "z": 7,
+            "precision": 1.0,
+            "recall": 0.163,
+            "false_alarms_per_hour": 0.0
+          },
+          {
+            "z": 8,
+            "precision": 1.0,
+            "recall": 0.113,
+            "false_alarms_per_hour": 0.0
+          }
+        ],
+        "ewma": [
+          {
+            "z": 2,
+            "precision": 0.8,
+            "recall": 0.85,
+            "false_alarms_per_hour": 1.25
+          },
+          {
+            "z": 2.5,
+            "precision": 0.838,
+            "recall": 0.775,
+            "false_alarms_per_hour": 0.88
+          },
+          {
+            "z": 3,
+            "precision": 0.983,
+            "recall": 0.713,
+            "false_alarms_per_hour": 0.07
+          },
+          {
+            "z": 3.5,
+            "precision": 1.0,
+            "recall": 0.662,
+            "false_alarms_per_hour": 0.0
+          },
+          {
+            "z": 4,
+            "precision": 1.0,
+            "recall": 0.625,
+            "false_alarms_per_hour": 0.0
+          },
+          {
+            "z": 4.5,
+            "precision": 1.0,
+            "recall": 0.6,
+            "false_alarms_per_hour": 0.0
+          },
+          {
+            "z": 5,
+            "precision": 1.0,
+            "recall": 0.575,
+            "false_alarms_per_hour": 0.0
+          },
+          {
+            "z": 6,
+            "precision": 1.0,
+            "recall": 0.487,
+            "false_alarms_per_hour": 0.0
+          },
+          {
+            "z": 7,
+            "precision": 1.0,
+            "recall": 0.412,
+            "false_alarms_per_hour": 0.0
+          },
+          {
+            "z": 8,
+            "precision": 1.0,
+            "recall": 0.325,
+            "false_alarms_per_hour": 0.0
+          }
+        ],
+        "ar-rls": [
+          {
+            "z": 2,
+            "precision": 0.765,
+            "recall": 0.775,
+            "false_alarms_per_hour": 1.4
+          },
+          {
+            "z": 2.5,
+            "precision": 0.947,
+            "recall": 0.675,
+            "false_alarms_per_hour": 0.22
+          },
+          {
+            "z": 3,
+            "precision": 1.0,
+            "recall": 0.637,
+            "false_alarms_per_hour": 0.0
+          },
+          {
+            "z": 3.5,
+            "precision": 1.0,
+            "recall": 0.613,
+            "false_alarms_per_hour": 0.0
+          },
+          {
+            "z": 4,
+            "precision": 1.0,
+            "recall": 0.562,
+            "false_alarms_per_hour": 0.0
+          },
+          {
+            "z": 4.5,
+            "precision": 1.0,
+            "recall": 0.525,
+            "false_alarms_per_hour": 0.0
+          },
+          {
+            "z": 5,
+            "precision": 1.0,
+            "recall": 0.487,
+            "false_alarms_per_hour": 0.0
+          },
+          {
+            "z": 6,
+            "precision": 1.0,
+            "recall": 0.338,
+            "false_alarms_per_hour": 0.0
+          },
+          {
+            "z": 7,
+            "precision": 1.0,
+            "recall": 0.275,
+            "false_alarms_per_hour": 0.0
+          },
+          {
+            "z": 8,
+            "precision": 1.0,
+            "recall": 0.25,
+            "false_alarms_per_hour": 0.0
+          }
+        ]
+      },
+      "small": {
+        "static": [
+          {
+            "z": 2,
+            "precision": 0.541,
+            "recall": 0.752,
+            "false_alarms_per_hour": 2.46
+          },
+          {
+            "z": 2.5,
+            "precision": 0.636,
+            "recall": 0.648,
+            "false_alarms_per_hour": 1.43
+          },
+          {
+            "z": 3,
+            "precision": 0.71,
+            "recall": 0.467,
+            "false_alarms_per_hour": 0.74
+          },
+          {
+            "z": 3.5,
+            "precision": 0.681,
+            "recall": 0.305,
+            "false_alarms_per_hour": 0.55
+          },
+          {
+            "z": 4,
+            "precision": 0.643,
+            "recall": 0.257,
+            "false_alarms_per_hour": 0.55
+          },
+          {
+            "z": 4.5,
+            "precision": 0.765,
+            "recall": 0.248,
+            "false_alarms_per_hour": 0.29
+          },
+          {
+            "z": 5,
+            "precision": 0.808,
+            "recall": 0.2,
+            "false_alarms_per_hour": 0.18
+          },
+          {
+            "z": 6,
+            "precision": 1.0,
+            "recall": 0.057,
+            "false_alarms_per_hour": 0.0
+          },
+          {
+            "z": 7,
+            "precision": 1.0,
+            "recall": 0.048,
+            "false_alarms_per_hour": 0.0
+          },
+          {
+            "z": 8,
+            "precision": 1.0,
+            "recall": 0.029,
+            "false_alarms_per_hour": 0.0
+          }
+        ],
+        "ewma": [
+          {
+            "z": 2,
+            "precision": 0.425,
+            "recall": 0.857,
+            "false_alarms_per_hour": 4.49
+          },
+          {
+            "z": 2.5,
+            "precision": 0.5,
+            "recall": 0.771,
+            "false_alarms_per_hour": 2.98
+          },
+          {
+            "z": 3,
+            "precision": 0.692,
+            "recall": 0.686,
+            "false_alarms_per_hour": 1.18
+          },
+          {
+            "z": 3.5,
+            "precision": 0.753,
+            "recall": 0.61,
+            "false_alarms_per_hour": 0.77
+          },
+          {
+            "z": 4,
+            "precision": 0.75,
+            "recall": 0.4,
+            "false_alarms_per_hour": 0.51
+          },
+          {
+            "z": 4.5,
+            "precision": 0.702,
+            "recall": 0.314,
+            "false_alarms_per_hour": 0.51
+          },
+          {
+            "z": 5,
+            "precision": 0.676,
+            "recall": 0.238,
+            "false_alarms_per_hour": 0.44
+          },
+          {
+            "z": 6,
+            "precision": 1.0,
+            "recall": 0.171,
+            "false_alarms_per_hour": 0.0
+          },
+          {
+            "z": 7,
+            "precision": 1.0,
+            "recall": 0.067,
+            "false_alarms_per_hour": 0.0
+          },
+          {
+            "z": 8,
+            "precision": 1.0,
+            "recall": 0.038,
+            "false_alarms_per_hour": 0.0
+          }
+        ],
+        "ar-rls": [
+          {
+            "z": 2,
+            "precision": 0.5,
+            "recall": 0.81,
+            "false_alarms_per_hour": 3.12
+          },
+          {
+            "z": 2.5,
+            "precision": 0.684,
+            "recall": 0.743,
+            "false_alarms_per_hour": 1.32
+          },
+          {
+            "z": 3,
+            "precision": 0.708,
+            "recall": 0.6,
+            "false_alarms_per_hour": 0.96
+          },
+          {
+            "z": 3.5,
+            "precision": 0.718,
+            "recall": 0.486,
+            "false_alarms_per_hour": 0.74
+          },
+          {
+            "z": 4,
+            "precision": 0.714,
+            "recall": 0.333,
+            "false_alarms_per_hour": 0.51
+          },
+          {
+            "z": 4.5,
+            "precision": 0.683,
+            "recall": 0.267,
+            "false_alarms_per_hour": 0.48
+          },
+          {
+            "z": 5,
+            "precision": 0.774,
+            "recall": 0.229,
+            "false_alarms_per_hour": 0.26
+          },
+          {
+            "z": 6,
+            "precision": 1.0,
+            "recall": 0.124,
+            "false_alarms_per_hour": 0.0
+          },
+          {
+            "z": 7,
+            "precision": 1.0,
+            "recall": 0.057,
+            "false_alarms_per_hour": 0.0
+          },
+          {
+            "z": 8,
+            "precision": 1.0,
+            "recall": 0.048,
+            "false_alarms_per_hour": 0.0
+          }
+        ]
+      }
+    },
+    "drift": {
+      "busy": {
+        "static": [
+          {
+            "z": 2,
+            "precision": 0.034,
+            "recall": 0.962,
+            "false_alarms_per_hour": 158.53
+          },
+          {
+            "z": 2.5,
+            "precision": 0.046,
+            "recall": 0.924,
+            "false_alarms_per_hour": 111.84
+          },
+          {
+            "z": 3,
+            "precision": 0.068,
+            "recall": 0.911,
+            "false_alarms_per_hour": 72.5
+          },
+          {
+            "z": 3.5,
+            "precision": 0.123,
+            "recall": 0.899,
+            "false_alarms_per_hour": 37.06
+          },
+          {
+            "z": 4,
+            "precision": 0.241,
+            "recall": 0.797,
+            "false_alarms_per_hour": 14.56
+          },
+          {
+            "z": 4.5,
+            "precision": 0.504,
+            "recall": 0.747,
+            "false_alarms_per_hour": 4.26
+          },
+          {
+            "z": 5,
+            "precision": 0.722,
+            "recall": 0.722,
+            "false_alarms_per_hour": 1.62
+          },
+          {
+            "z": 6,
+            "precision": 0.92,
+            "recall": 0.582,
+            "false_alarms_per_hour": 0.29
+          },
+          {
+            "z": 7,
+            "precision": 1.0,
+            "recall": 0.443,
+            "false_alarms_per_hour": 0.0
+          },
+          {
+            "z": 8,
+            "precision": 1.0,
+            "recall": 0.329,
+            "false_alarms_per_hour": 0.0
+          }
+        ],
+        "ewma": [
+          {
+            "z": 2,
+            "precision": 0.485,
+            "recall": 0.81,
+            "false_alarms_per_hour": 5.0
+          },
+          {
+            "z": 2.5,
+            "precision": 0.836,
+            "recall": 0.772,
+            "false_alarms_per_hour": 0.88
+          },
+          {
+            "z": 3,
+            "precision": 0.982,
+            "recall": 0.709,
+            "false_alarms_per_hour": 0.07
+          },
+          {
+            "z": 3.5,
+            "precision": 1.0,
+            "recall": 0.62,
+            "false_alarms_per_hour": 0.0
+          },
+          {
+            "z": 4,
+            "precision": 1.0,
+            "recall": 0.544,
+            "false_alarms_per_hour": 0.0
+          },
+          {
+            "z": 4.5,
+            "precision": 1.0,
+            "recall": 0.532,
+            "false_alarms_per_hour": 0.0
+          },
+          {
+            "z": 5,
+            "precision": 1.0,
+            "recall": 0.494,
+            "false_alarms_per_hour": 0.0
+          },
+          {
+            "z": 6,
+            "precision": 1.0,
+            "recall": 0.367,
+            "false_alarms_per_hour": 0.0
+          },
+          {
+            "z": 7,
+            "precision": 1.0,
+            "recall": 0.316,
+            "false_alarms_per_hour": 0.0
+          },
+          {
+            "z": 8,
+            "precision": 1.0,
+            "recall": 0.253,
+            "false_alarms_per_hour": 0.0
+          }
+        ],
+        "ar-rls": [
+          {
+            "z": 2,
+            "precision": 0.663,
+            "recall": 0.747,
+            "false_alarms_per_hour": 2.21
+          },
+          {
+            "z": 2.5,
+            "precision": 0.933,
+            "recall": 0.709,
+            "false_alarms_per_hour": 0.29
+          },
+          {
+            "z": 3,
+            "precision": 1.0,
+            "recall": 0.62,
+            "false_alarms_per_hour": 0.0
+          },
+          {
+            "z": 3.5,
+            "precision": 1.0,
+            "recall": 0.57,
+            "false_alarms_per_hour": 0.0
+          },
+          {
+            "z": 4,
+            "precision": 1.0,
+            "recall": 0.506,
+            "false_alarms_per_hour": 0.0
+          },
+          {
+            "z": 4.5,
+            "precision": 1.0,
+            "recall": 0.405,
+            "false_alarms_per_hour": 0.0
+          },
+          {
+            "z": 5,
+            "precision": 1.0,
+            "recall": 0.354,
+            "false_alarms_per_hour": 0.0
+          },
+          {
+            "z": 6,
+            "precision": 1.0,
+            "recall": 0.266,
+            "false_alarms_per_hour": 0.0
+          },
+          {
+            "z": 7,
+            "precision": 1.0,
+            "recall": 0.177,
+            "false_alarms_per_hour": 0.0
+          },
+          {
+            "z": 8,
+            "precision": 1.0,
+            "recall": 0.127,
+            "false_alarms_per_hour": 0.0
+          }
+        ]
+      },
+      "small": {
+        "static": [
+          {
+            "z": 2,
+            "precision": 0.119,
+            "recall": 0.833,
+            "false_alarms_per_hour": 29.93
+          },
+          {
+            "z": 2.5,
+            "precision": 0.182,
+            "recall": 0.644,
+            "false_alarms_per_hour": 14.08
+          },
+          {
+            "z": 3,
+            "precision": 0.311,
+            "recall": 0.515,
+            "false_alarms_per_hour": 5.55
+          },
+          {
+            "z": 3.5,
+            "precision": 0.553,
+            "recall": 0.394,
+            "false_alarms_per_hour": 1.54
+          },
+          {
+            "z": 4,
+            "precision": 0.594,
+            "recall": 0.288,
+            "false_alarms_per_hour": 0.96
+          },
+          {
+            "z": 4.5,
+            "precision": 0.718,
+            "recall": 0.212,
+            "false_alarms_per_hour": 0.4
+          },
+          {
+            "z": 5,
+            "precision": 1.0,
+            "recall": 0.167,
+            "false_alarms_per_hour": 0.0
+          },
+          {
+            "z": 6,
+            "precision": 1.0,
+            "recall": 0.106,
+            "false_alarms_per_hour": 0.0
+          },
+          {
+            "z": 7,
+            "precision": 1.0,
+            "recall": 0.068,
+            "false_alarms_per_hour": 0.0
+          },
+          {
+            "z": 8,
+            "precision": 1.0,
+            "recall": 0.053,
+            "false_alarms_per_hour": 0.0
+          }
+        ],
+        "ewma": [
+          {
+            "z": 2,
+            "precision": 0.256,
+            "recall": 0.614,
+            "false_alarms_per_hour": 8.68
+          },
+          {
+            "z": 2.5,
+            "precision": 0.404,
+            "recall": 0.462,
+            "false_alarms_per_hour": 3.31
+          },
+          {
+            "z": 3,
+            "precision": 0.611,
+            "recall": 0.333,
+            "false_alarms_per_hour": 1.03
+          },
+          {
+            "z": 3.5,
+            "precision": 0.805,
+            "recall": 0.25,
+            "false_alarms_per_hour": 0.29
+          },
+          {
+            "z": 4,
+            "precision": 1.0,
+            "recall": 0.212,
+            "false_alarms_per_hour": 0.0
+          },
+          {
+            "z": 4.5,
+            "precision": 1.0,
+            "recall": 0.159,
+            "false_alarms_per_hour": 0.0
+          },
+          {
+            "z": 5,
+            "precision": 1.0,
+            "recall": 0.114,
+            "false_alarms_per_hour": 0.0
+          },
+          {
+            "z": 6,
+            "precision": 1.0,
+            "recall": 0.068,
+            "false_alarms_per_hour": 0.0
+          },
+          {
+            "z": 7,
+            "precision": 1.0,
+            "recall": 0.053,
+            "false_alarms_per_hour": 0.0
+          },
+          {
+            "z": 8,
+            "precision": 1.0,
+            "recall": 0.023,
+            "false_alarms_per_hour": 0.0
+          }
+        ],
+        "ar-rls": [
+          {
+            "z": 2,
+            "precision": 0.209,
+            "recall": 0.659,
+            "false_alarms_per_hour": 12.1
+          },
+          {
+            "z": 2.5,
+            "precision": 0.428,
+            "recall": 0.47,
+            "false_alarms_per_hour": 3.05
+          },
+          {
+            "z": 3,
+            "precision": 0.73,
+            "recall": 0.348,
+            "false_alarms_per_hour": 0.62
+          },
+          {
+            "z": 3.5,
+            "precision": 0.814,
+            "recall": 0.265,
+            "false_alarms_per_hour": 0.29
+          },
+          {
+            "z": 4,
+            "precision": 1.0,
+            "recall": 0.205,
+            "false_alarms_per_hour": 0.0
+          },
+          {
+            "z": 4.5,
+            "precision": 1.0,
+            "recall": 0.167,
+            "false_alarms_per_hour": 0.0
+          },
+          {
+            "z": 5,
+            "precision": 1.0,
+            "recall": 0.106,
+            "false_alarms_per_hour": 0.0
+          },
+          {
+            "z": 6,
+            "precision": 1.0,
+            "recall": 0.076,
+            "false_alarms_per_hour": 0.0
+          },
+          {
+            "z": 7,
+            "precision": 1.0,
+            "recall": 0.038,
+            "false_alarms_per_hour": 0.0
+          },
+          {
+            "z": 8,
+            "precision": 1.0,
+            "recall": 0.015,
+            "false_alarms_per_hour": 0.0
+          }
+        ]
+      }
+    }
+  }
+}

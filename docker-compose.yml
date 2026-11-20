@@ -1,0 +1,95 @@
+# One command starts everything:   docker compose up -d --build
+# Dashboard: http://localhost:8501
+
+x-app: &app
+  build: .
+  restart: unless-stopped
+  environment: &app-env
+    KAFKA_BOOTSTRAP: kafka:9092
+    DATABASE_URL: postgresql://${POSTGRES_USER:-wiki}:${POSTGRES_PASSWORD:-wiki}@postgres:5432/${POSTGRES_DB:-wiki}
+    WIKI_USER_AGENT: ${WIKI_USER_AGENT:-wiki-kafka-pipeline/1.0 (student project)}
+    WIKI_DOMAIN_SUFFIX: ${WIKI_DOMAIN_SUFFIX:-wikipedia.org}
+    RETENTION_HOURS: ${RETENTION_HOURS:-6}
+    Z_THRESHOLD: ${Z_THRESHOLD:-4.0}
+  depends_on:
+    kafka: {condition: service_healthy}
+    postgres: {condition: service_healthy}
+
+services:
+  kafka:                       # single-node Kafka in KRaft mode (no ZooKeeper)
+    image: apache/kafka:3.8.1
+    container_name: wiki-kafka
+    ports: ["29092:29092"]     # for tools running on your laptop
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:29092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,EXTERNAL://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_LOG_DIRS: /var/lib/kafka/data      # the image default (/tmp) is NOT on the volume
+      KAFKA_LOG_RETENTION_HOURS: 6
+      KAFKA_LOG_RETENTION_BYTES: 1073741824
+    volumes: [kafka-data:/var/lib/kafka/data]
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list >/dev/null 2>&1"]
+      interval: 5s
+      timeout: 10s
+      retries: 30
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: wiki-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-wiki}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-wiki}
+      POSTGRES_DB: ${POSTGRES_DB:-wiki}
+    ports: ["5433:5432"]
+    volumes: [pg-data:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-wiki} -d ${POSTGRES_DB:-wiki}"]
+      interval: 5s
+      retries: 20
+    restart: unless-stopped
+
+  producer:                    # Part 1: Wikipedia SSE -> Kafka
+    <<: *app
+    container_name: wiki-producer
+    command: python -m pipeline.producer
+
+  db-sink:                     # Part 3: Kafka -> Postgres `edits`          (group edits-to-postgres)
+    <<: *app
+    container_name: wiki-db-sink
+    command: python -m pipeline.db_sink
+
+  stats-processor:             # Part 4: windows + alerts                    (group edit-stats-processor)
+    <<: *app
+    container_name: wiki-stats-processor
+    command: python -m pipeline.stats_processor
+
+  anomaly-detector:            # Bonus: online AR forecaster / anomalies     (group rate-anomaly-detector)
+    <<: *app
+    container_name: wiki-anomaly-detector
+    command: python -m pipeline.anomaly_detector
+
+  derived-sink:                # derived topics -> Postgres                  (group derived-to-postgres)
+    <<: *app
+    container_name: wiki-derived-sink
+    command: python -m pipeline.derived_sink
+
+  dashboard:                   # Part 5: Streamlit
+    <<: *app
+    container_name: wiki-dashboard
+    command: streamlit run dashboard/app.py --server.port 8501 --server.address 0.0.0.0 --server.headless true
+    ports: ["8501:8501"]
+
+volumes:
+  kafka-data:
+  pg-data:
